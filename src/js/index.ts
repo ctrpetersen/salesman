@@ -1,6 +1,7 @@
 var numberOfCities: Number = Number((<HTMLInputElement>document.getElementById("citiesInput")).value);
 var canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById("mainCanvas");
 var context: CanvasRenderingContext2D = canvas.getContext("2d");
+var totalLength: number = 0;
 
 canvas.width = 800;
 canvas.height = 800;
@@ -14,7 +15,9 @@ class City{
     public x:number = 0;
     public y:number = 0;
     
+    //->
     public cityOne:City = null;
+    //<-
     public cityTwo:City = null;
 
     Draw() {
@@ -23,12 +26,12 @@ class City{
 
     DrawLines() {
         context.beginPath();
-        context.moveTo(this.x,this.y);
-        context.lineTo(this.cityOne.x, this.cityOne.y);
+        context.moveTo(this.x+3,this.y+3);
+        context.lineTo(this.cityOne.x+3, this.cityOne.y+3);
         context.stroke();
         context.beginPath();
-        context.moveTo(this.x,this.y);
-        context.lineTo(this.cityTwo.x, this.cityTwo.y);
+        context.moveTo(this.x+3,this.y+3);
+        context.lineTo(this.cityTwo.x+3, this.cityTwo.y+3);
         context.stroke();
     }
 }
@@ -43,7 +46,7 @@ function GenerateRandomPath(){
     for (let index = 0; index < numberOfCities; index++) {
         if (index == 0){
             cities[index].cityOne = cities[index+1];
-            cities[index].cityTwo = cities[49]
+            cities[index].cityTwo = cities[cities.length-1]
         }
         else if (index == cities.length-1){
             cities[index].cityOne = cities[0];
@@ -53,11 +56,11 @@ function GenerateRandomPath(){
             cities[index].cityOne = cities[index+1];
             cities[index].cityTwo = cities[index-1];
         }
-
     } 
 }
 
 GenerateRandomPath();
+totalLength = getDistance();
 
 console.log(cities.length);
 
@@ -68,9 +71,16 @@ function MainLoop() {
     window.requestAnimationFrame(MainLoop.bind(this));
 
     cities.forEach(element => {
+        context.fillStyle = "gray";
         element.Draw();
+        context.fillStyle = "black";
         element.DrawLines();
     });
+
+    context.font = "18px Roboto";
+    context.fillStyle = "white";
+    context.fillText("Total length: " + totalLength, 0, canvas.height-5);
+    context.fillStyle = "black";
 
 
 }
@@ -79,6 +89,25 @@ function getRandomInt(min:number, max:number) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getDistance():number{
+    var total = 0;
+    for (let index = 0; index < numberOfCities; index++) {
+        var city = cities[index];
+        
+        var a = city.x - city.cityOne.x;
+        var b = city.y - city.cityOne.y;
+        var c = Math.sqrt( a*a + b*b );
+
+        total += c;
+    }
+    return total;
+}
+
+//Tries swapping two cities' cityone. If path becomes shorter, save it.
+function TryShuffle(){
+
 }
 
 MainLoop();
