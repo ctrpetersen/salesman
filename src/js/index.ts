@@ -82,6 +82,9 @@ function MainLoop() {
     context.fillText("Total length: " + totalLength, 0, canvas.height-5);
     context.fillStyle = "black";
 
+    TryShuffle();
+    totalLength = getDistance();
+
 
 }
 
@@ -105,9 +108,32 @@ function getDistance():number{
     return total;
 }
 
-//Tries swapping two cities' cityone. If path becomes shorter, save it.
+//Tries swapping two cities' cityone. If path becomes shorter, continue. Otherwise, flip back.
 function TryShuffle(){
+    var rand1 = getRandomInt(0, cities.length-1);
+    var rand2 = getRandomInt(0, cities.length-1);
+    while (rand1 == rand2){
+        rand2 = getRandomInt(0, cities.length-1);
+    }
 
+    var cityOneToShuffle = cities[rand1];
+    var cityTwoToShuffle = cities[rand2];
+
+    var lengthBeforeShuffle = getDistance();
+
+    var cityOneToShuffleC1_old = cityOneToShuffle.cityOne;
+    var cityTwoToShuffleC1_old = cityTwoToShuffle.cityOne;
+
+    cities[rand1].cityOne = cityTwoToShuffle.cityOne;
+    cities[rand2].cityOne = cityOneToShuffle.cityOne;
+
+    var lengthAfterShuffle = getDistance();
+
+    if (lengthAfterShuffle > lengthBeforeShuffle){
+        cities[rand1].cityOne = cityOneToShuffleC1_old;
+        cities[rand2].cityTwo = cityTwoToShuffleC1_old;
+    }
+    
 }
 
 MainLoop();
