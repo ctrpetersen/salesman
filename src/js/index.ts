@@ -22,26 +22,42 @@ class City{
     }
 
     DrawLines() {
-        
+        context.beginPath();
+        context.moveTo(this.x,this.y);
+        context.lineTo(this.cityOne.x, this.cityOne.y);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(this.x,this.y);
+        context.lineTo(this.cityTwo.x, this.cityTwo.y);
+        context.stroke();
     }
 }
 
 var cities:City[] = new Array<City>();
 
 for (let index = 0; index < numberOfCities; index++) {
-    cities.push(new City(getRandomInt(0, canvas.width-10), getRandomInt(0, canvas.height-10)))
+    cities.push(new City(getRandomInt(0, canvas.width-20), getRandomInt(0, canvas.height-20)))
 }
 
-for (let index = 0; index < numberOfCities; index++) {
-    cities[index].cityOne = cities[getRandomInt(0,cities.length)];
+function GenerateRandomPath(){
+    for (let index = 0; index < numberOfCities; index++) {
+        if (index == 0){
+            cities[index].cityOne = cities[index+1];
+            cities[index].cityTwo = cities[49]
+        }
+        else if (index == cities.length-1){
+            cities[index].cityOne = cities[0];
+            cities[index].cityTwo = cities[index-1];
+        }
+        else{
+            cities[index].cityOne = cities[index+1];
+            cities[index].cityTwo = cities[index-1];
+        }
 
-    var temp = getRandomInt(0,cities.length);
-    while (cities[index].cityOne !== cities[temp]){
-        temp = getRandomInt(0,cities.length);
-    }
-    cities[index].cityTwo = cities[temp];
-    
+    } 
 }
+
+GenerateRandomPath();
 
 console.log(cities.length);
 
@@ -53,6 +69,7 @@ function MainLoop() {
 
     cities.forEach(element => {
         element.Draw();
+        element.DrawLines();
     });
 
 
