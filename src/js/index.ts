@@ -2,6 +2,7 @@ var numberOfCities: Number = Number((<HTMLInputElement>document.getElementById("
 var canvas: HTMLCanvasElement = <HTMLCanvasElement>document.getElementById("mainCanvas");
 var context: CanvasRenderingContext2D = canvas.getContext("2d");
 var totalLength: number = 0;
+document.getElementById("startButton").addEventListener("click", () => MainLoop());
 
 canvas.width = 800;
 canvas.height = 800;
@@ -16,9 +17,7 @@ class City{
     public y:number = 0;
     
     //->
-    public cityOne:City = null;
-    //<-
-    public cityTwo:City = null;
+    public nextCity:City = null;
 
     Draw() {
         context.fillRect(this.x,this.y,5,5)
@@ -27,11 +26,7 @@ class City{
     DrawLines() {
         context.beginPath();
         context.moveTo(this.x+3,this.y+3);
-        context.lineTo(this.cityOne.x+3, this.cityOne.y+3);
-        context.stroke();
-        context.beginPath();
-        context.moveTo(this.x+3,this.y+3);
-        context.lineTo(this.cityTwo.x+3, this.cityTwo.y+3);
+        context.lineTo(this.nextCity.x+3, this.nextCity.y+3);
         context.stroke();
     }
 }
@@ -45,16 +40,13 @@ for (let index = 0; index < numberOfCities; index++) {
 function GenerateRandomPath(){
     for (let index = 0; index < numberOfCities; index++) {
         if (index == 0){
-            cities[index].cityOne = cities[index+1];
-            cities[index].cityTwo = cities[cities.length-1]
+            cities[index].nextCity = cities[index+1];
         }
         else if (index == cities.length-1){
-            cities[index].cityOne = cities[0];
-            cities[index].cityTwo = cities[index-1];
+            cities[index].nextCity = cities[0];
         }
         else{
-            cities[index].cityOne = cities[index+1];
-            cities[index].cityTwo = cities[index-1];
+            cities[index].nextCity = cities[index+1];
         }
     } 
 }
@@ -99,8 +91,8 @@ function getDistance():number{
     for (let index = 0; index < numberOfCities; index++) {
         var city = cities[index];
         
-        var a = city.x - city.cityOne.x;
-        var b = city.y - city.cityOne.y;
+        var a = city.x - city.nextCity.x;
+        var b = city.y - city.nextCity.y;
         var c = Math.sqrt( a*a + b*b );
 
         total += c;
@@ -108,7 +100,7 @@ function getDistance():number{
     return total;
 }
 
-//Tries swapping two cities' cityone. If path becomes shorter, continue. Otherwise, flip back.
+//Tries swapping two cities' nextCity. If path becomes shorter, continue. Otherwise, flip back.
 function TryShuffle(){
     var rand1 = getRandomInt(0, cities.length-1);
     var rand2 = getRandomInt(0, cities.length-1);
@@ -116,24 +108,23 @@ function TryShuffle(){
         rand2 = getRandomInt(0, cities.length-1);
     }
 
-    var cityOneToShuffle = cities[rand1];
-    var cityTwoToShuffle = cities[rand2];
-
     var lengthBeforeShuffle = getDistance();
 
-    var cityOneToShuffleC1_old = cityOneToShuffle.cityOne;
-    var cityTwoToShuffleC1_old = cityTwoToShuffle.cityOne;
-
-    cities[rand1].cityOne = cityTwoToShuffle.cityOne;
-    cities[rand2].cityOne = cityOneToShuffle.cityOne;
+    var temp:City = new City(cities[rand1].x, cities[rand1].y);
+    cities[rand1].x = cities[rand2].x;
+    cities[rand1].y = cities[rand2].y;
+    cities[rand2].x = temp.x;
+    cities[rand2].y = temp.y;
 
     var lengthAfterShuffle = getDistance();
 
     if (lengthAfterShuffle > lengthBeforeShuffle){
-        cities[rand1].cityOne = cityOneToShuffleC1_old;
-        cities[rand2].cityTwo = cityTwoToShuffleC1_old;
+        var temp:City = new City(cities[rand1].x, cities[rand1].y);
+        cities[rand1].x = cities[rand2].x;
+        cities[rand1].y = cities[rand2].y;
+        cities[rand2].x = temp.x;
+        cities[rand2].y = temp.y;
     }
     
 }
 
-MainLoop();
